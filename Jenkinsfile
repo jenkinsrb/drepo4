@@ -1,8 +1,10 @@
+
 pipeline {
     agent any
 	parameters {
 		booleanParam defaultValue: true, name: 'skip_test'
 		}
+
 
     stages {
         stage('build') {
@@ -10,25 +12,20 @@ pipeline {
                 echo 'Hello build'
             }
         }
-        stage('test') {
-			when {expression {params.skip_test != true}}
-            parallel {
-              stage('unit test') { 
-                steps {
-                echo 'Hello unit test'
-                }
-              }
-            stage('Integration test') { 
-                steps {
-                echo 'Hello integration test'
-            }
-            }
-            }
-        }
+        
       stage('deploy') {
             steps {
-                echo 'Hello deploy'
+                execute_stage('deploy',params.skip_test)
             }
         }
     }
 }
+
+def execute_stage(stage_name,skip){
+ stage(stage_name){
+ if(skip){
+ echo "skipping ${stage_name} stage"
+ return
+ }
+ }
+ }
